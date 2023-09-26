@@ -7,10 +7,31 @@ import { useState } from 'react';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-  const [sayi, setSayi] = useState(7);
 
-  const numberChanged = function (e) {
-    setSayi(e.target.value);
+  const [title, setTitle] = useState("");
+  const [todos, setTodos] = useState([
+    { title: "Do your homework", done: false },
+    { title: "Wash the dishes", done: false },
+    { title: "Watch Netflix", done: true },
+    { title: "Walk in the park", done: true }
+  ]);
+
+  const handleSubmit = function (e) {
+    e.preventDefault();
+    setTodos([...todos, { title, done: false }]);
+    setTitle("");
+  };
+
+  const handleCheckChange = function (e, index) {
+    const newTodos = [...todos];
+    newTodos[index].done = e.target.checked;
+    setTodos(newTodos);
+  };
+
+  const handleDelete = function (e, index) {
+    const newTodos = [...todos];
+    newTodos.splice(index, 1);
+    setTodos(newTodos);
   };
 
   return (
@@ -23,9 +44,23 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <h1>To-Do List</h1>
-        <input type="number" value={sayi} onChange={numberChanged} />
-        <p>Girilen Değer: {sayi}</p>
-        <p>Girilen sayı bir {sayi % 2 == 0 ? <strong>Çift</strong> : "Tek"} sayıdır.</p>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <input value={title} onChange={e => setTitle(e.target.value)} type="text" placeholder="What are you going to do?" required />{" "}
+            <button>Add</button>
+          </div>
+        </form>
+
+        <div className={styles.todos}>
+          {todos.map((todo, i) =>
+            <div key={i} className={styles.todoItem + " " + (todo.done ? styles.done : styles.undone)}>
+              <input type="checkbox" checked={todo.done}
+                onChange={(e) => handleCheckChange(e, i)} />
+              <span>{todo.title}</span>
+              <button onClick={(e) => handleDelete(e, i)}>&times;</button>
+            </div>
+          )}
+        </div>
       </main>
     </>
   );
