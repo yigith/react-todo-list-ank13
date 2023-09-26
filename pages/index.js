@@ -2,36 +2,49 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Inter } from 'next/font/google';
 import styles from '@/styles/Home.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
 
+  // only runs in first render
+  useEffect(() => {
+    console.log("loading seed/saved data");
+    setTodos(seedData());
+  }, []);
+
+  console.log("rendering Home");
+
   const [title, setTitle] = useState("");
-  const [todos, setTodos] = useState([
-    { title: "Do your homework", done: false },
-    { title: "Wash the dishes", done: false },
-    { title: "Watch Netflix", done: true },
-    { title: "Walk in the park", done: true }
-  ]);
+  const [todos, setTodos] = useState([]);
 
   const handleSubmit = function (e) {
     e.preventDefault();
-    setTodos([...todos, { title, done: false }]);
+    const newTodos = [...todos, { title, done: false }];
+    setTodos(newTodos);
     setTitle("");
+    save(newTodos);
   };
 
   const handleCheckChange = function (e, index) {
     const newTodos = [...todos];
     newTodos[index].done = e.target.checked;
     setTodos(newTodos);
+    save(newTodos);
   };
 
   const handleDelete = function (e, index) {
     const newTodos = [...todos];
     newTodos.splice(index, 1);
     setTodos(newTodos);
+    save(newTodos);
+
+  };
+
+  const save = function (data) {
+    const json = JSON.stringify(data);
+    localStorage["data"] = json;
   };
 
   return (
@@ -64,4 +77,18 @@ export default function Home() {
       </main>
     </>
   );
+}
+
+function seedData() {
+  if (localStorage["data"]) {
+    return JSON.parse(localStorage["data"]);
+  }
+  else {
+    return [
+      { title: "Do your homework", done: false },
+      { title: "Wash the dishes", done: false },
+      { title: "Watch Netflix", done: true },
+      { title: "Walk in the park", done: true }
+    ];
+  }
 }
